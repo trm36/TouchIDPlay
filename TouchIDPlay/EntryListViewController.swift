@@ -16,7 +16,6 @@ class EntryListViewController: UIViewController, UITableViewDataSource {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
         authenticateUser()
     }
@@ -43,17 +42,7 @@ class EntryListViewController: UIViewController, UITableViewDataSource {
             self.showTouchID(context: context, reason: reasonString)
         } else {
             //No Touch ID
-            
-            print("/***************")
-            print(" * NO TOUCH ID *")
-            print(" ***************/")
-            
-            //check error message
-            if let error = error as? LAError {
-                self.handleNoTouchID(error: error)
-            }
-            
-            self.showPasswordAlert()
+            self.handleNoTouchID(error: error as? LAError)
         }
     }
     
@@ -100,6 +89,7 @@ class EntryListViewController: UIViewController, UITableViewDataSource {
     
     // MARK: - Error Handling - TOUCH ID
     
+    ///User did not authenticate successfully
     func handleTouchID(error evalPolicyError: LAError) {
         
         print("/******************")
@@ -129,19 +119,29 @@ class EntryListViewController: UIViewController, UITableViewDataSource {
         }
     }
     
-    func handleNoTouchID(error: LAError) {
+    ///Could not evaluate policy
+    func handleNoTouchID(error: LAError?) {
         
-        switch error {
-        case LAError.touchIDNotAvailable:
-            print("Touch ID not available")
-        case LAError.touchIDNotEnrolled:
-            print("Touch ID is not enrolled")
-        case LAError.passcodeNotSet:
-            print("A passcode has not been set")
-        default:
-            print("DEFAULT - \(error)")
+        print("/***************")
+        print(" * NO TOUCH ID *")
+        print(" ***************/")
+        
+        if let error = error {
+        
+            switch error {
+            case LAError.touchIDNotAvailable:
+                print("Touch ID not available")
+            case LAError.touchIDNotEnrolled:
+                print("Touch ID is not enrolled")
+            case LAError.passcodeNotSet:
+                print("A passcode has not been set")
+            default:
+                print("DEFAULT - \(error)")
+            }
+        
         }
         
+        self.showPasswordAlert()
     }
     
     // MARK: - TableViewDataSource
@@ -203,6 +203,7 @@ class EntryListViewController: UIViewController, UITableViewDataSource {
     
     // MARK: - View Controller Mode
     
+    ///User authenticated successfully
     func unlock() {
         EntryController.sharedController.loadEntries()
         setViewMode(viewMode: .unlocked)
